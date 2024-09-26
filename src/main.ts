@@ -10,7 +10,7 @@ async function bootstrap() {
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
-    .setDescription('API documentation for my NestJS application')
+    .setDescription('API documentation for HolaWear - NestJS application')
     .setVersion('1.0')
     .build();
 
