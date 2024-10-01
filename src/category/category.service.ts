@@ -5,14 +5,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from '../schemas/category.schema';
 
-
 @Injectable()
 export class CategoryService {
-  constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) {}
+  constructor(
+    @InjectModel(Category.name) private categoryModel: Model<Category>,
+  ) {}
 
-  async create(@Body(ValidationPipe) createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const createdCategory = new this.categoryModel(createCategoryDto)
-    return createdCategory.save()
+  async create(
+    @Body(ValidationPipe) createCategoryDto: CreateCategoryDto,
+  ): Promise<Category> {
+    const createdCategory = new this.categoryModel(createCategoryDto);
+    return createdCategory.save();
   }
 
   async findAll(): Promise<Category[]> {
@@ -23,10 +26,13 @@ export class CategoryService {
     return this.categoryModel.findById(id).exec();
   }
 
-  update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category | null>  {
+  update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category | null> {
     return this.categoryModel
-    .findByIdAndUpdate(id, updateCategoryDto, { new: true })
-    .exec();
+      .findByIdAndUpdate(id, updateCategoryDto, { new: true })
+      .exec();
   }
 
   remove(id: string) {
