@@ -3,6 +3,14 @@ import { HydratedDocument, Types } from 'mongoose';
 import { Category } from './category.schema';
 import { Event } from './event.schema';
 
+export enum Size {
+  S = 'S',
+  M = 'M',
+  L = 'L',
+  XL = 'XL',
+  '2XL' = '2XL',
+}
+
 export type ProductDocument = HydratedDocument<Product>;
 
 @Schema({ timestamps: true })
@@ -10,14 +18,36 @@ export class Product {
   @Prop({ required: true, minlength: 2, maxlength: 100 })
   name: string;
 
-  @Prop({ required: true, minlength: 5, maxlength: 100 })
+  @Prop({ required: true, minlength: 2, maxlength: 100 })
   title: string;
 
   @Prop({ required: true, minlength: 10, maxlength: 500 })
   description: string;
 
-  @Prop({ type: Types.ObjectId, ref: Category.name, required: true })
-  category_id: Types.ObjectId;
+  @Prop({
+    type: [
+      {
+        name: { type: String, required: true },
+        status: { type: Boolean, default: false },
+      },
+    ],
+    _id: false,
+  })
+  colors: { name: string; status: boolean }[];
+
+  @Prop({
+    type: [
+      {
+        name: { type: String, enum: Object.values(Size), required: true },
+        status: { type: Boolean, default: false },
+      },
+    ],
+    _id: false,
+  })
+  sizes: { name: Size; status: boolean }[];
+
+  @Prop({ type: [Types.ObjectId], ref: Category.name, required: true })
+  category_id: Types.ObjectId[];
 
   @Prop({ default: 0, min: 0, max: 1 })
   discount: number; // Validation added for range
@@ -34,14 +64,15 @@ export class Product {
   @Prop({
     type: [String],
     validate: [arrayLimit, 'Exceeds the limit of 10 images'],
+    default: []
   })
   images: string[]; // Add validation for array length
 
   @Prop({ match: /https?:\/\/.+/ })
   thumbnail: string; // Consider validating URL format if required
 
-  @Prop({ type: Types.ObjectId, ref: Event.name })
-  event_id: Types.ObjectId;
+  @Prop({ type: [Types.ObjectId], ref: Event.name })
+  event_id: Types.ObjectId[];
 }
 
 // Custom validator to limit the number of images

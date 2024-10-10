@@ -8,8 +8,12 @@ export class CreateCategoryDto {
     minLength: 2,
     maxLength: 15,
   })
-  @IsString() 
-  @Length(2, 50)
+  @IsString({
+    message: 'Tên danh mục phải ở dạng string'
+  }) 
+  @Length(2, 15, {
+    message: 'Tên danh mục chỉ được dài từ 2 đến 15 ký tự'
+  })
   name: string;
 
   @ApiPropertyOptional({
@@ -18,6 +22,8 @@ export class CreateCategoryDto {
     default: false,
   })
   @IsOptional() 
-  @IsBoolean()
+  @IsBoolean({
+    message: 'Trạng thái hiện thị của danh mục phải là boolean'
+  })
   status?: boolean;
 }

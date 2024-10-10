@@ -2,15 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { GlobalExceptionFilter } from './CustomErrorHandler';
+import * as dotenv from 'dotenv';
 
 async function bootstrap() {
+  dotenv.config();
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
-
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalFilters(new GlobalExceptionFilter());
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
-    .setDescription('API documentation for HolaWear - NestJS application')
+    .setDescription('Tài liệu API của HolaWear Backend- ứng dụng NestJS')
     .setVersion('1.0')
     .build();
 

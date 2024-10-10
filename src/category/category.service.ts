@@ -12,15 +12,19 @@ export class CategoryService {
 
   async create(@Body(ValidationPipe) createCategoryDto: CreateCategoryDto): Promise<Category> {
     const createdCategory = new this.categoryModel(createCategoryDto)
-    return createdCategory.save()
+    return await createdCategory.save()
   }
 
   async findAll(): Promise<Category[]> {
     return this.categoryModel.find().exec();
   }
 
-  findOne(id: string): Promise<Category | null> {
-    return this.categoryModel.findById(id).exec();
+  findOne(name: string): Promise<Category | null> {
+    return this.categoryModel.findOne({name}).exec()
+  }
+
+  findById(id: string): Promise<Category | null> {
+    return this.categoryModel.findById(id).exec()
   }
 
   update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category | null>  {
