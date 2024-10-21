@@ -10,6 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.setGlobalPrefix('api');
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
@@ -20,6 +21,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(8080);
+  await app.listen(9999);
 }
 bootstrap();
