@@ -9,9 +9,10 @@ import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { EventModule } from './event/event.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://localhost:27017/HolaWear'), CategoryModule, ProductModule, ReportModule, CartModule, OrderModule, EventModule, CloudinaryModule],
+  imports: [MongooseModule.forRoot('mongodb://localhost:27017/HolaWear'), CategoryModule, ProductModule, ReportModule, CartModule, OrderModule, EventModule, CloudinaryModule, AccountModule],
   controllers: [AppController],
   providers: [AppService],
 })
