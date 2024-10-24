@@ -1,11 +1,13 @@
 // address.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type TypeDocument = HydratedDocument<ShippingAddress>;
 
 @Schema()
 export class ShippingAddress {
+    _id?: Types.ObjectId;
+
     @Prop()
     fullName: string
 
