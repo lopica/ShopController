@@ -1,10 +1,11 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { Request } from 'express';
 
 @Injectable()
@@ -14,23 +15,28 @@ export class JWTGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    console.log(token);
+
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token not found');
     }
+
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.SECRET_KEY_JWT,
       });
-      console.log(payload);
 
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
+      // Assign payload to request to access in route handlers
       request['user'] = payload;
-    } catch(err) {
-      console.log(err)
-      return
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        console.error('Token expired:', err.message);
+        throw new ForbiddenException('Token expired, please login again');
+      } else {
+        console.error('Token verification failed:', err.message);
+        throw new UnauthorizedException('Invalid token');
+      }
     }
+
     return true;
   }
 

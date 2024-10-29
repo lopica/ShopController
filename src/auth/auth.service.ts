@@ -25,15 +25,15 @@ export class AuthService {
   }
 
   async login(user: any) {
-    console.log('User payload:', user._doc.email);
+    // console.log('User payload:', user._doc);
     if (!user._doc.email || !user._doc._id.toString()) {
       throw new BadRequestException('Invalid user payload for JWT');
     }
-    const payload = { email: user._doc.email, sub: user._doc._id.toString() };
-    console.log(payload)
+    const payload = { email: user._doc.email, role: user._doc.role };
+    // console.log(payload)
     try {
       return {
-        access_token: this.jwtService.sign(payload, {secret: process.env.SECRET_KEY_JWT}),
+        access_token: this.jwtService.sign(payload, {secret: process.env.SECRET_KEY_JWT, expiresIn: process.env.EXPIRE_TIME}),
       };
     } catch (error) {
       console.log(error)

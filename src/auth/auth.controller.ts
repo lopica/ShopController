@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('login')
+  @Post('signin')
   async login(@Body() body) {
     const { email, password } = body;
 
