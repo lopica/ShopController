@@ -14,7 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ShippingAddress } from './entities/shipping-address.entity';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -28,6 +28,11 @@ export class UserController {
   @Get('all')
   async findAllUsers() {
     return this.userService.findAll();
+  }
+
+  @Get('email/:email')
+  async findAllUsersbyEmail(@Param('email') email) {
+    return  this.userService.findOneByEmail(email)
   }
 
   // Get a specific user by ID
@@ -46,7 +51,7 @@ export class UserController {
   }
 
   // Add a new shipping address for a user
-  @Post(':userId/add-address')
+  @Post('add-address/:userId')
   async addShippingAddress(
     @Param('userId') userId: string,
     @Body() newAddress: ShippingAddress,
@@ -64,23 +69,22 @@ export class UserController {
   }
 
   // Change a user's password
-  @Patch(':id/password')
+  @Post('change-password/:id')
   async changePassword(
     @Param('id') userId: string,
     @Body() {currentPassword, newPassword},
   ) {
-    if (!newPassword || newPassword.length < 6) {
-      throw new BadRequestException('Password must be at least 6 characters long.');
-    }
+    // if (!newPassword || newPassword.length < 6) {
+    //   throw new BadRequestException('Password must be at least 6 characters long.');
+    // }
     return this.userService.changePassword(userId, newPassword);
   }
 
   // Change a user's status (activate/deactivate)
-  @Patch(':id/status')
+  @Put('change-status/:id')
   async changeStatus(
     @Param('id') userId: string,
-    @Body('status') status: boolean,
   ) {
-    return this.userService.changeStatus(userId, status);
+    return this.userService.changeStatus(userId);
   }
 }

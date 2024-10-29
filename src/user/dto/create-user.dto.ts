@@ -9,9 +9,9 @@ export class CreateUserDto {
     @IsNotEmpty()
     password: string
 
-    @IsString()
-    @IsNotEmpty()
-    type: string
+    // @IsString()
+    // @IsNotEmpty()
+    // type: string
 
     @IsString()
     @IsNotEmpty()
