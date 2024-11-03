@@ -8,22 +8,42 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post()
-  create(@Body() createCartDto: CreateCartDto) {
+async create(@Body() body: { userId: string }) {
+  const { userId } = body; 
+  return await this.cartService.create(userId);
+}
+
+
+  @Post()
+  addProductToCart(@Body() createCartDto: CreateCartDto) {
+    
   }
 
-  @Get()
-  findAll() {
+  @Post()
+  removeOrderItem(@Body() createCartDto: CreateCartDto) {
+
+  }
+
+  @Post()
+  removeItem(@Body() createCartDto: CreateCartDto) {
+
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-  }
+  // @Get()
+  // findAll() {
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-  }
+  // }
+
+
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  // }
 }

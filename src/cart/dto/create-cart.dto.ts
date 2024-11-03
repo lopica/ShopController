@@ -10,7 +10,7 @@ export class CreateCartDto {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CartItemDto)
-  cartItems: CartItemDto[];
+  cartItem: CartItemDto[];
 
   @IsNotEmpty()
   @IsNumber()

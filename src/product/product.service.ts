@@ -20,12 +20,19 @@ export class ProductService {
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<ProductDocument> {
-    const categoryExists = await this.categoryModel.findById(createProductDto.category);
+    const categoryExists = await this.categoryModel.findById(
+      createProductDto.category,
+    );
     if (!categoryExists) {
       throw new NotFoundException('Category Id not found');
     }
-    const createdProduct = new this.productModel(createProductDto);
-    return createdProduct.save();
+    try {
+      const createdProduct = new this.productModel(createProductDto);
+      return await createdProduct.save();
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async findAll(): Promise<ProductDocument[]> {
@@ -81,10 +88,14 @@ export class ProductService {
   }
 
   async updateStatus(id: string, status: string): Promise<ProductDocument> {
-    const product = await this.productModel.findByIdAndUpdate(id, { availabilityStatus: status }, { new: true });
+    const product = await this.productModel.findByIdAndUpdate(
+      id,
+      { availabilityStatus: status },
+      { new: true },
+    );
     // console.log(product);
     if (!product) {
-      throw new NotFoundException("Product not found");
+      throw new NotFoundException('Product not found');
     }
     return product;
   }
@@ -101,25 +112,24 @@ export class ProductService {
   // async importProducts(products: Product): Promise<ProductDocument> {
   //   try {
   //     const importedProducts = [];
-  
+
   //     for (let productData of products) {
   //       const { title, description, category, price, discountPercentage, stock, type, availabilityStatus, minimumOrderQuantity, images, thumbnail, tag, brand, stockDetails } = productData;
-  
+
   //       const categoryObject = await Category.findOne({ name: category });
   //       const tagObject = await Tag.findOne({ name: tag });
   //       const brandObject = await Brand.findOne({ name: brand });
   //       const typeObject = await Type.findOne({ name: type });
 
-
   //       // Generate a unique public_id for Cloudinary uploads
   //       const public_id = "hlw" + crypto.randomBytes(8).toString("hex");
-  
+
   //       // Upload the thumbnail to Cloudinary
   //       const thumbnailUrl = await uploadToCloudinary(thumbnail, public_id + "_thumbnail");
-  
+
   //       // Upload images to Cloudinary and get their URLs
   //       const imagesUrl = await Promise.all(images.map((image, index) => uploadToCloudinary(image, public_id + "_image" + (index + 1))));
-  
+
   //       const newProduct = new Product({
   //         title,
   //         description,
@@ -138,11 +148,11 @@ export class ProductService {
   //         reviews: [],
   //         stockDetails: stockDetails || [],
   //       });
-  
+
   //       const savedProduct = await newProduct.save();
   //       importedProducts.push(savedProduct);
   //     }
-  
+
   //     res.status(201).json({ message: "Products imported successfully", products: importedProducts });
   //   } catch (error) {
   //     return res.status(500).json({ message: error.message });

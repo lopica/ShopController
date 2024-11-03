@@ -22,7 +22,7 @@ export class ProductController {
     return await this.productService.create(createProductDto);
   }
 
-  @Get('get-all-product')
+  @Get('get-all-product2')
   @HttpCode(HttpStatus.OK)
   async findAll() {
     return await this.productService.findAll();

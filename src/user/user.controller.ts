@@ -18,11 +18,7 @@ import { ShippingAddress } from './entities/shipping-address.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // Create a new user
-  @Post('create')
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
+
 
   // Get all users
   @Get('all')
@@ -32,7 +28,7 @@ export class UserController {
 
   @Get('email/:email')
   async findAllUsersbyEmail(@Param('email') email) {
-    return  this.userService.findOneByEmail(email)
+    return this.userService.findOneByEmail(email)
   }
 
   // Get a specific user by ID

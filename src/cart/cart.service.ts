@@ -1,20 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cart, CartDocument } from './entities/cart.entity';
+import { Model } from 'mongoose';
+import { CategoryDocument } from 'src/category/entities/category.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class CartService {
-  addProductToCart(createCartDto: CreateCartDto) {
-    return 'This action adds a new cart';
+  constructor(@InjectModel(Cart.name) private cartModel: Model<CategoryDocument>,
+  private readonly userService: UserService) {}
+
+  async create(userId: string) {
+    const existUser = await this.userService.findOne(userId)
+    if (!existUser) {
+      throw new NotFoundException('Cannot find this user')
+    }
+    const newCart = new this.cartModel({ userId, cartItems: [], totalPrice: 0 })
+    await newCart.save()
   }
 
-  findOneByUserId(id: number) {
-    return `This action returns a #${id} cart`;
-  }
+  async addToCart(createCartDto: CreateCartDto) {
+    const { cartItem, userId, totalPrice } = createCartDto;
 
-  removeItem(userId: string, itemId: string) {
-  }
+    // Find the cart by userId
+    let cart = await this.cartModel.findOne({ userId }).exec();
+    if (cart) {
+     
+    } else {
+      // Create a new cart if it doesn't exist
+    }
 
-  removeAllItems(userId: string) {
+    const savedCart = await cart.save();
   }
 }

@@ -51,7 +51,7 @@ export class Product {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Brand', required: true })
   brand: Types.ObjectId;
 
-  @Prop({ required: true, enum: ['Active', 'InActive'], default: 'InActive' })
+  @Prop({ required: true, enum: ['InActive', 'In Stock', 'Sold Out'], default: 'InActive' })
   availabilityStatus: string;
 
   @Prop({ type: [String], default: [] })

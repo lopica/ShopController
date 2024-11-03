@@ -29,7 +29,7 @@ export class AuthService {
     if (!user._doc.email || !user._doc._id.toString()) {
       throw new BadRequestException('Invalid user payload for JWT');
     }
-    const payload = { email: user._doc.email, role: user._doc.role };
+    const payload = { email: user._doc.email, role: user._doc.role, id: user._doc._id };
     // console.log(payload)
     try {
       return {
