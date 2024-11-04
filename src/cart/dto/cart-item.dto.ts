@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, IsNumber, IsMongoId } from 'class-validator';
 
 export class CartItemDto {
@@ -21,10 +22,12 @@ export class CartItemDto {
   @IsString()
   size: string;
 
+  @Transform(({ value }) => Number(value))
   @IsNotEmpty()
   @IsNumber()
   quantity: number;
 
+  @Transform(({ value }) => Number(value))
   @IsNotEmpty()
   @IsNumber()
   price: number; // Price per product

@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -12,16 +14,18 @@ import { ShippingAddress } from './entities/shipping-address.entity';
 import * as bcrypt from 'bcrypt';
 import { isEmail } from 'class-validator';
 import { RoleService } from 'src/role/role.service';
+import { CartService } from 'src/cart/cart.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly roleService: RoleService,
+    @Inject(forwardRef(() => CartService)) private readonly cartService: CartService,
   ) {}
 
   // Create a new user
-  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+  async create(createUserDto: CreateUserDto) {
     const {role} = createUserDto
     const existingUser = await this.userModel
       .findOne({ email: createUserDto.email })
@@ -36,7 +40,15 @@ export class UserService {
     // Hash the password before saving
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
     const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
+    const saveUser: any = createdUser.save();
+    if (saveUser) {
+      const userId = createdUser._id.toString();
+      const user = await this.userModel.findById(userId);
+      if (!user) {
+        throw new NotFoundException({ message: "Email and User not found." });
+      }
+      await this.cartService.create(userId);
+    }
   }
 
   // Find all users

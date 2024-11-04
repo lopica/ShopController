@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsMongoId, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { CartItemDto } from './cart-item.dto';
 
 export class CreateCartDto {
@@ -10,8 +10,9 @@ export class CreateCartDto {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CartItemDto)
-  cartItem: CartItemDto[];
+  cartItem: any;
 
+  @Transform(({ value }) => Number(value))
   @IsNotEmpty()
   @IsNumber()
   totalPrice: number;
