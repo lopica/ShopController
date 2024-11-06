@@ -32,7 +32,6 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
-
     // 3. Generate a JWT or session token for the user
     return this.authService.login(user); // Return JWT or token
   }
@@ -40,6 +39,5 @@ export class AuthController {
   @Get('logout')
   async logout(@Request() req) {
     // Implement logout functionality depending on your JWT strategy
-    console.log(req)
   }
 }

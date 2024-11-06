@@ -35,7 +35,6 @@ export class CartService {
 
   async addToCart(createCartDto: CreateCartDto) {
     const { cartItem, userId, totalPrice } = createCartDto;
-
     // Find the cart by userId
     let cart: any = await this.cartModel.findOne({ userId }).exec();
     if (cart) {
@@ -72,7 +71,6 @@ export class CartService {
     if (!cart) {
       throw new NotFoundException({ message: 'Cart not found' });
     }
-    console.log(cart.cartItems)
     return {
       id: cart._id,
       userId: cart.userId,
@@ -80,8 +78,8 @@ export class CartService {
         // Find the color detail for the selected color
         return {
           id: item._id,
-          productTitle: item.productId.title,
-          productId: item.productId._id,
+          productTitle: item.productTitle,
+          productId: item.productId,
           thumbnail: item.thumbnail, 
           color: item.color,
           size: item.size,
@@ -94,5 +92,21 @@ export class CartService {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  async removeOrderItem(userId: string, orderedItems) {
+    console.log(orderedItems + " " + userId);
+    let cart: any = await this.cartModel.findOne({ userId });
+    if (!cart) {
+      throw new NotFoundException("Cart not found");
+    }
+    // Remove ordered items from cart
+    cart.cartItems = cart.cartItems.filter(
+      (cartItem) => !orderedItems.some((orderedItem) => orderedItem.productId === cartItem.productId.toString() && orderedItem.color === cartItem.color && orderedItem.size === cartItem.size),
+    );
+    // Recalculate total price
+    cart.totalPrice = cart.cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const updatedCart = await cart.save();
+    return updatedCart;
   }
 }

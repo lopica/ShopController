@@ -39,6 +39,10 @@ export class ProductService {
     return this.productModel.find().exec();
   }
 
+  async findAllList(productIds: string[]) {
+    return this.productModel.find({ _id: { $in: productIds } })
+  }
+
   async findOne(id: string): Promise<ProductDocument> {
     const product = await this.productModel.findById(id).exec();
     if (!product) {

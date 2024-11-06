@@ -31,8 +31,10 @@ export class CartController {
     return await this.cartService.getCartByUserId(id)
   }
 
-  @Post()
-  removeOrderItem(@Body() createCartDto: CreateCartDto) {}
+  @Post('remove-ordered-items')
+  async removeOrderItem(@Body() {userId, orderedItems}) {
+    return await this.cartService.removeOrderItem(userId, orderedItems)
+  }
 
   @Post()
   removeItem(@Body() createCartDto: CreateCartDto) {}

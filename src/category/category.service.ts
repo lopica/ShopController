@@ -48,7 +48,6 @@ export class CategoryService {
     if (!result) {
       throw new NotFoundException(`Category with ID ${id} not found.`);
     }
-    console.log(result)
     return result;
   }
 }

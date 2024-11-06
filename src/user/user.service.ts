@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Inject,
   forwardRef,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,31 +22,35 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly roleService: RoleService,
-    @Inject(forwardRef(() => CartService)) private readonly cartService: CartService,
+    @Inject(forwardRef(() => CartService))
+    private readonly cartService: CartService,
   ) {}
 
   // Create a new user
   async create(createUserDto: CreateUserDto) {
-    const {role} = createUserDto
+    const { role } = createUserDto;
     const existingUser = await this.userModel
       .findOne({ email: createUserDto.email })
       .exec();
     if (existingUser) {
       throw new BadRequestException('Email already in use.');
     }
-    const existingRole = await this.roleService.findByName(role)
+    const existingRole = await this.roleService.findByName(role);
     if (!existingRole) {
-      throw new NotFoundException('Role is not exist')
+      throw new NotFoundException('Role is not exist');
     }
     // Hash the password before saving
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-    const createdUser = new this.userModel(createUserDto);
-    const saveUser: any = createdUser.save();
+    const createdUser = new this.userModel({
+      ...createUserDto,
+      role: existingRole._id,
+    });
+    const saveUser: any = await createdUser.save();
     if (saveUser) {
       const userId = createdUser._id.toString();
       const user = await this.userModel.findById(userId);
       if (!user) {
-        throw new NotFoundException({ message: "Email and User not found." });
+        throw new NotFoundException({ message: 'Email and User not found.' });
       }
       await this.cartService.create(userId);
     }
@@ -74,11 +79,18 @@ export class UserService {
     }
     const user = await this.userModel
       .findOne({ email })
+      .populate('role', 'name')
       .exec();
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found.`);
     }
-    return user;
+    const userWithRoleName = user.toObject(); 
+
+    if (userWithRoleName.role && typeof userWithRoleName.role === 'object') {
+      userWithRoleName.role = (userWithRoleName.role as any).name;
+    }
+
+    return userWithRoleName;
   }
 
   // Update user details
@@ -145,5 +157,26 @@ export class UserService {
     const user = await this.findOne(userId);
     user.status = !user.status;
     return user.save();
+  }
+
+  async deleteShippingAddress(userId: string, addressId: string) {
+    const updatedUser = await this.userModel.findByIdAndUpdate(userId, { $pull: { shippingAddress: { _id: addressId } } }, { new: true, runValidators: true });
+
+    const getRole = await this.roleService.findById(updatedUser.role.toString());
+    const roleName = getRole.name;
+
+    if (updatedUser) {
+      return {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        gender: updatedUser.gender,
+        role: roleName,
+        shippingAddress: updatedUser.shippingAddress,
+      };
+    } else {
+      throw new InternalServerErrorException("Delete shipping address failed");
+    }
   }
 }

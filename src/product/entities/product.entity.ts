@@ -57,9 +57,6 @@ export class Product {
   @Prop({ type: [String], default: [] })
   reviews: string[];
 
-  @Prop({ required: true })
-  returnPolicy: string;
-
   @Prop({ required: true, default: 1 })
   minimumOrderQuantity: number;
 

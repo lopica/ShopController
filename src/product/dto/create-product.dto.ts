@@ -90,10 +90,6 @@ export class CreateProductDto {
   @IsString({ each: true })
   reviews: string[];
 
-  @IsString()
-  @IsNotEmpty()
-  returnPolicy: string = "30 days return policy";
-
   @Transform(({ value }) => Number(value)) // Convert to number
   @IsNumber()
   @Min(1)

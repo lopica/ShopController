@@ -48,7 +48,6 @@ export class BrandService {
     if (!result) {
       throw new NotFoundException(`Brand with ID ${id} not found.`);
     }
-    console.log(result)
     return result;
   }
 }

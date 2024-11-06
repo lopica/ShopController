@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Role, RoleDocument } from './entities/role.entity';
@@ -19,5 +19,13 @@ export class RoleService {
 
   async findByName(name: string): Promise<RoleDocument> {
     return this.roleModel.findOne({name}).exec()
+  }
+
+  async findById(id: string): Promise<RoleDocument> {
+    const role = await this.roleModel.findById(id).exec();
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${id} not found.`);
+    }
+    return role;
   }
 }

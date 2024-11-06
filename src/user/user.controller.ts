@@ -8,6 +8,7 @@ import {
   Body,
   Delete,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -82,5 +83,10 @@ export class UserController {
     @Param('id') userId: string,
   ) {
     return this.userService.changeStatus(userId);
+  }
+
+  @Delete('delete-address/:id')
+  async deleteShippingAddress(@Param('id') userId: string, @Query('addressId') addressId: string) {
+    return this.userService.deleteShippingAddress(userId, addressId)
   }
 }

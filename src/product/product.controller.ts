@@ -40,10 +40,10 @@ export class ProductController {
     return await this.productService.findByCategoryId(id);
   }
 
-  @Put('status')
+  @Put('status/:id')
   @HttpCode(HttpStatus.OK)
   async updateStatus(
-    @Body() {productId, status}: {productId: string, status: string},
+    @Param('id') productId: string, @Body() {status}: {status: string},
   ) {
     return await this.productService.updateStatus(productId, status);
   }

@@ -48,7 +48,6 @@ export class TagService {
     if (!result) {
       throw new NotFoundException(`Tag with ID ${id} not found.`);
     }
-    console.log(result)
     return result;
   }
 }

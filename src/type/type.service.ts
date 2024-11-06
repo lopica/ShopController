@@ -48,7 +48,6 @@ export class TypeService {
     if (!result) {
       throw new NotFoundException(`Type with ID ${id} not found.`);
     }
-    console.log(result)
     return result;
   }
 }
