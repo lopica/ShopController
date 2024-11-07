@@ -84,7 +84,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found.`);
     }
-    const userWithRoleName = user.toObject(); 
+    const userWithRoleName = user.toObject();
 
     if (userWithRoleName.role && typeof userWithRoleName.role === 'object') {
       userWithRoleName.role = (userWithRoleName.role as any).name;
@@ -94,30 +94,45 @@ export class UserService {
   }
 
   // Update user details
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserDocument> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid user ID format.');
-    }
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      console.log(id);
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('Invalid user ID format.');
+      }
 
-    // If password is included in update, hash it
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-    }
+      if (updateUserDto.role) {
+        delete updateUserDto.role;
+      }
 
-    const updatedUser = await this.userModel
-      .findByIdAndUpdate(id, updateUserDto, {
-        new: true,
-        runValidators: true,
-      })
-      .exec();
+      // If password is included in update, hash it
+      if (updateUserDto.password) {
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      }
 
-    if (!updatedUser) {
-      throw new NotFoundException(`User with ID ${id} not found.`);
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(id, updateUserDto, {
+          new: true,
+          runValidators: true,
+        })
+        .exec();
+
+      if (!updatedUser) {
+        throw new NotFoundException(`User with ID ${id} not found.`);
+      }
+      const res = await this.findOneByEmail(updatedUser.email);
+      return {
+        email: res.email,
+        role: res.role,
+        id: res._id,
+        name: res.name,
+        phone: res.phone,
+        gender: res.gender,
+        shippingAddress: res.shippingAddress,
+      };
+    } catch (error) {
+      console.log(error);
     }
-    return updatedUser;
   }
 
   // Remove a specific shipping address
@@ -160,9 +175,15 @@ export class UserService {
   }
 
   async deleteShippingAddress(userId: string, addressId: string) {
-    const updatedUser = await this.userModel.findByIdAndUpdate(userId, { $pull: { shippingAddress: { _id: addressId } } }, { new: true, runValidators: true });
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      { $pull: { shippingAddress: { _id: addressId } } },
+      { new: true, runValidators: true },
+    );
 
-    const getRole = await this.roleService.findById(updatedUser.role.toString());
+    const getRole = await this.roleService.findById(
+      updatedUser.role.toString(),
+    );
     const roleName = getRole.name;
 
     if (updatedUser) {
@@ -176,7 +197,7 @@ export class UserService {
         shippingAddress: updatedUser.shippingAddress,
       };
     } else {
-      throw new InternalServerErrorException("Delete shipping address failed");
+      throw new InternalServerErrorException('Delete shipping address failed');
     }
   }
 }
