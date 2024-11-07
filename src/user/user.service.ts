@@ -144,17 +144,27 @@ export class UserService {
     user.shippingAddress = user.shippingAddress.filter(
       (address) => address._id.toString() !== addressId,
     );
-    return user.save();
+    return await user.save();
   }
 
   // Add a new shipping address
-  async addShippingAddress(
+  async addShippingAddress (
     userId: string,
     newAddress: ShippingAddress,
-  ): Promise<UserDocument> {
+  ) {
     const user = await this.findOne(userId);
     user.shippingAddress.push(newAddress);
-    return user.save();
+    const newUser = await user.save();
+    const res = await this.findOneByEmail(newUser.email)
+    return {
+      email: res.email,
+      role: res.role,
+      id: res._id,
+      name: res.name,
+      phone: res.phone,
+      gender: res.gender,
+      shippingAddress: res.shippingAddress,
+    };
   }
 
   // Change user password
