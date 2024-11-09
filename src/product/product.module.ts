@@ -7,13 +7,20 @@ import {
   Category,
   CategorySchema,
 } from 'src/category/entities/category.entity';
+import { CategoryModule } from 'src/category/category.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { BrandModule } from 'src/brand/brand.module';
+import { TagModule } from 'src/tag/tag.module';
+import { TypeModule } from 'src/type/type.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
-    MongooseModule.forFeature([
-      { name: Category.name, schema: CategorySchema },
-    ]),
+    CategoryModule,
+    CloudinaryModule,
+    BrandModule,
+    TagModule,
+    TypeModule,
   ],
   controllers: [ProductController],
   providers: [ProductService],

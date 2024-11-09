@@ -9,5 +9,6 @@ import { TypeSchema } from './entities/type.entity';
   imports: [MongooseModule.forFeature([{ name: Type.name, schema: TypeSchema }])],
   controllers: [TypeController],
   providers: [TypeService],
+  exports: [TypeService]
 })
 export class TypeModule {}

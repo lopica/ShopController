@@ -69,4 +69,9 @@ export class ProductController {
   async remove(@Param('id') id: string) {
     return await this.productService.remove(id);
   }
+
+  @Post('import')
+  async import(@Body() products) {
+    return await this.productService.importProducts(products.products)
+  }
 }

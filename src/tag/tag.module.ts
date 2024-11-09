@@ -8,5 +8,6 @@ import { Tag, TagSchema } from './entities/tag.entity';
   imports: [MongooseModule.forFeature([{ name: Tag.name, schema: TagSchema }])],
   controllers: [TagController],
   providers: [TagService],
+  exports: [TagService]
 })
 export class TagModule {}

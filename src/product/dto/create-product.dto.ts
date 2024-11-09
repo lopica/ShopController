@@ -105,6 +105,6 @@ export class CreateProductDto {
 
   @ValidateNested({ each: true })
   @Type(() => StockDto)
-  @ArrayMinSize(1)
+  @IsOptional()
   stockDetails: StockDto[];
 }

@@ -1,26 +1,33 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './entities/product.entity';
 import { Model, Types } from 'mongoose';
-import {
-  Category,
-  CategoryDocument,
-} from 'src/category/entities/category.entity';
+import { CategoryService } from 'src/category/category.service';
+import { BrandService } from 'src/brand/brand.service';
+import { TagService } from 'src/tag/tag.service';
+import { TypeService } from 'src/type/type.service';
+import { randomBytes } from 'crypto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
-    @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
+    private readonly categoryService: CategoryService,
+    private readonly brandService: BrandService,
+    private readonly tagService: TagService,
+    private readonly typeService: TypeService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<ProductDocument> {
-    const categoryExists = await this.categoryModel.findById(
+    const categoryExists = await this.categoryService.findOne(
       createProductDto.category,
     );
     if (!categoryExists) {
@@ -66,7 +73,7 @@ export class ProductService {
       throw new BadRequestException('Invalid category ID');
     }
 
-    const categoryExists = await this.categoryModel.findById(categoryId);
+    const categoryExists = await this.categoryService.findOne(categoryId);
     if (!categoryExists) {
       throw new NotFoundException('Category not found');
     }
@@ -123,53 +130,84 @@ export class ProductService {
     return result;
   }
 
-  // async importProducts(products: Product): Promise<ProductDocument> {
-  //   try {
-  //     const importedProducts = [];
-
-  //     for (let productData of products) {
-  //       const { title, description, category, price, discountPercentage, stock, type, availabilityStatus, minimumOrderQuantity, images, thumbnail, tag, brand, stockDetails } = productData;
-
-  //       const categoryObject = await Category.findOne({ name: category });
-  //       const tagObject = await Tag.findOne({ name: tag });
-  //       const brandObject = await Brand.findOne({ name: brand });
-  //       const typeObject = await Type.findOne({ name: type });
-
-  //       // Generate a unique public_id for Cloudinary uploads
-  //       const public_id = "hlw" + crypto.randomBytes(8).toString("hex");
-
-  //       // Upload the thumbnail to Cloudinary
-  //       const thumbnailUrl = await uploadToCloudinary(thumbnail, public_id + "_thumbnail");
-
-  //       // Upload images to Cloudinary and get their URLs
-  //       const imagesUrl = await Promise.all(images.map((image, index) => uploadToCloudinary(image, public_id + "_image" + (index + 1))));
-
-  //       const newProduct = new Product({
-  //         title,
-  //         description,
-  //         category: categoryObject ? categoryObject._id : null,
-  //         price: price || 0,
-  //         discountPercentage: discountPercentage || 0,
-  //         rating: 0,
-  //         stock: stock || 0,
-  //         type: typeObject ? typeObject._id : null,
-  //         tag: tagObject ? tagObject._id : null,
-  //         brand: brandObject ? brandObject._id : null,
-  //         availabilityStatus: availabilityStatus || "InActive",
-  //         minimumOrderQuantity: minimumOrderQuantity || 1,
-  //         images: imagesUrl,
-  //         thumbnail: thumbnailUrl,
-  //         reviews: [],
-  //         stockDetails: stockDetails || [],
-  //       });
-
-  //       const savedProduct = await newProduct.save();
-  //       importedProducts.push(savedProduct);
-  //     }
-
-  //     res.status(201).json({ message: "Products imported successfully", products: importedProducts });
-  //   } catch (error) {
-  //     return res.status(500).json({ message: error.message });
-  //   }
-  // };
+  async importProducts(products) {
+    try {
+      const importedProducts = [];
+      for (const productData of products) {
+        const {
+          title,
+          description,
+          category,
+          price,
+          discountPercentage,
+          stock,
+          type,
+          availabilityStatus,
+          minimumOrderQuantity,
+          images,
+          thumbnail,
+          tag,
+          brand,
+          stockDetails,
+        } = productData;
+  
+        // console.log(productData);
+  
+        const categoryObject: any = await this.categoryService.findOneByName(category);
+        const tagObject: any = await this.tagService.findOneByName(tag);
+        const brandObject: any = await this.brandService.findOneByName(brand);
+        const typeObject: any = await this.typeService.findOneByName(type);
+  
+        // console.log(categoryObject);
+        // console.log(tagObject);
+        // console.log(brandObject);
+        // console.log(typeObject);
+  
+        // Check if any required field is missing
+        if (!categoryObject || !tagObject || !brandObject || !typeObject) {
+          break;
+        }
+  
+        // Generate a unique public_id for Cloudinary uploads
+        const public_id = "hlw" + randomBytes(8).toString("hex");
+  
+        // Upload the thumbnail to Cloudinary
+        const thumbnailUrl = await this.cloudinaryService.uploadToCloudinaryByUrl(thumbnail, public_id + "_thumbnail");
+  
+        // Upload images to Cloudinary and get their URLs
+        const imagesUrl = await Promise.all(
+          images.map((image, index) =>
+            this.cloudinaryService.uploadToCloudinaryByUrl(image, public_id + "_image" + (index + 1))
+          )
+        );
+  
+        const newProduct = new this.productModel({
+          title,
+          description,
+          category: categoryObject._id,
+          price: price || 0,
+          discountPercentage: discountPercentage || 0,
+          rating: 0,
+          stock: stock || 0,
+          type: typeObject._id,
+          tag: tagObject._id,
+          brand: brandObject._id,
+          availabilityStatus: availabilityStatus || "InActive",
+          minimumOrderQuantity: minimumOrderQuantity || 1,
+          images: imagesUrl,
+          thumbnail: thumbnailUrl,
+          reviews: [],
+          stockDetails: stockDetails || [],
+        });
+  
+        const savedProduct = await newProduct.save();
+        importedProducts.push(savedProduct);
+      }
+  
+      return { message: "Products imported successfully", products: importedProducts };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+  
 }

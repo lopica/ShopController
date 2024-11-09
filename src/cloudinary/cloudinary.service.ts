@@ -17,11 +17,22 @@ export class CloudinaryService {
     });
   }
 
-  async uploadImageBuffer(buffer: Buffer, publicId: string): Promise<CloudinaryUploadResponse> {
+  async uploadImageBuffer(
+    buffer: Buffer,
+    publicId: string,
+  ): Promise<CloudinaryUploadResponse> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          public_id: publicId, // Set the public ID to the meaningful name
+          resource_type: 'auto',
+          public_id: publicId,
+          transformation: [
+            {
+              width: 1024,
+              height: 1024,
+              crop: 'fit',
+            },
+          ],
         },
         (error, result) => {
           if (error) {
@@ -35,5 +46,24 @@ export class CloudinaryService {
       streamifier.createReadStream(buffer).pipe(uploadStream);
     });
   }
-  
+
+  async uploadToCloudinaryByUrl (image, public_id) {
+    try {
+      const response = await cloudinary.uploader.upload(image, {
+        resource_type: "auto",
+        public_id,
+        transformation: [
+          {
+            width: 1024,
+            height: 1024,
+            crop: "fit",
+          },
+        ],
+      });
+      return response.secure_url;
+    } catch (error) {
+      console.log("Error uploading image to Cloudinary: ", error.message);
+      throw new Error("Error uploading image to Cloudinary");
+    }
+  };
 }

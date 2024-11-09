@@ -26,6 +26,14 @@ export class CategoryService {
     return category;
   }
 
+  async findOneByName(name: string) {
+    const category = await this.categoryModel.findOne({name}).exec();
+    if (!category) {
+      throw new NotFoundException(`Category with name is ${name} not found.`);
+    }
+    return category;
+  }
+
   async update(
     id: string,
     updateCategoryDto: UpdateCategoryDto,

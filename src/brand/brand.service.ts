@@ -26,6 +26,14 @@ export class BrandService {
     return brand;
   }
 
+  async findOneByName(name: string) {
+    const brand = await this.brandModel.findOne({name}).exec();
+    if (!brand) {
+      throw new NotFoundException(`Brand with name is ${name} not found.`);
+    }
+    return brand;
+  }
+
   async update(
     id: string,
     updateBrandDto: UpdateBrandDto,

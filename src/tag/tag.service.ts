@@ -26,6 +26,14 @@ export class TagService {
     return tag;
   }
 
+  async findOneByName(name: string) {
+    const tag = await this.tagModel.findOne({name}).exec();
+    if (!tag) {
+      throw new NotFoundException(`Tag with name is ${name} not found.`);
+    }
+    return tag;
+  }
+
   async update(
     id: string,
     updateTagDto: UpdateTagDto,

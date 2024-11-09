@@ -26,6 +26,14 @@ export class TypeService {
     return type;
   }
 
+  async findOneByName(name: string) {
+    const type = await this.typeModel.findOne({name}).exec();
+    if (!type) {
+      throw new NotFoundException(`Type with name is ${name} not found.`);
+    }
+    return type;
+  }
+
   async update(
     id: string,
     updateTypeDto: UpdateTypeDto,
