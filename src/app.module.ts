@@ -14,13 +14,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { DepotProductModule } from './depot-product/depot-product.module';
+import { ColorModule } from './color/color.module';
 
 @Module({
   imports: [MongooseModule.forRoot(`mongodb://localhost:27017/HolaWearV1`), CategoryModule,  CloudinaryModule, TagModule, TypeModule, ProductModule, UserModule, RoleModule, BrandModule, AuthModule, JwtModule.register({
     global: true,
     secret: 'sad',
     signOptions: { expiresIn: '120s' },
-  }), CartModule, OrderModule, DepotProductModule],
+  }), CartModule, OrderModule, DepotProductModule, ColorModule],
   controllers: [AppController],
 })
 export class AppModule {}
