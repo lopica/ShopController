@@ -35,9 +35,19 @@ export class ProductService {
     }
   }
 
-  async findAll(): Promise<ProductDocument[]> {
-    return this.productModel.find().exec();
+  async findAll(brand?: string, category?: string): Promise<ProductDocument[]> {
+    const filter: any = {};
+    
+    if (brand) {
+      filter.brand = brand;
+    }
+    if (category) {
+      filter.category = category;
+    }
+  
+    return this.productModel.find(filter).exec();
   }
+  
 
   async findAllList(productIds: string[]) {
     return this.productModel.find({ _id: { $in: productIds } })

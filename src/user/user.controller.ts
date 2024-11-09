@@ -19,8 +19,6 @@ import { ShippingAddress } from './entities/shipping-address.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
-
   // Get all users
   @Get('all')
   async findAllUsers() {
@@ -29,7 +27,7 @@ export class UserController {
 
   @Get('email/:email')
   async findAllUsersbyEmail(@Param('email') email) {
-    return this.userService.findOneByEmail(email)
+    return this.userService.findOneByEmail(email);
   }
 
   // Get a specific user by ID
@@ -69,7 +67,7 @@ export class UserController {
   @Post('change-password/:id')
   async changePassword(
     @Param('id') userId: string,
-    @Body() {currentPassword, newPassword},
+    @Body() { currentPassword, newPassword },
   ) {
     // if (!newPassword || newPassword.length < 6) {
     //   throw new BadRequestException('Password must be at least 6 characters long.');
@@ -79,14 +77,15 @@ export class UserController {
 
   // Change a user's status (activate/deactivate)
   @Put('change-status/:id')
-  async changeStatus(
-    @Param('id') userId: string,
-  ) {
+  async changeStatus(@Param('id') userId: string) {
     return this.userService.changeStatus(userId);
   }
 
   @Delete('delete-address/:id')
-  async deleteShippingAddress(@Param('id') userId: string, @Query('addressId') addressId: string) {
-    return this.userService.deleteShippingAddress(userId, addressId)
+  async deleteShippingAddress(
+    @Param('id') userId: string,
+    @Query('addressId') addressId: string,
+  ) {
+    return this.userService.deleteShippingAddress(userId, addressId);
   }
 }

@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -20,6 +21,12 @@ export class ProductController {
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createProductDto: CreateProductDto) {
     return await this.productService.create(createProductDto);
+  }
+
+  @Get('get-all-product')
+  @HttpCode(HttpStatus.OK)
+  async findAllUnknown(@Query('brand') brand?: string, @Query('category') category?: string) {
+    return await this.productService.findAll(brand, category);
   }
 
   @Get('get-all-product2')

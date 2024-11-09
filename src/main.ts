@@ -5,6 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './CustomErrorHandler';
 import * as dotenv from 'dotenv';
 
+declare const module: any;
+
 async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule, {
@@ -26,5 +28,10 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   await app.listen(9999);
+
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
 bootstrap();

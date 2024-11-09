@@ -57,8 +57,21 @@ export class UserService {
   }
 
   // Find all users
-  async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec(); // Populate role reference
+  async findAll() {
+    const users: any = await this.userModel.find().populate('role', 'name').exec();
+
+    return users.map((user) => {
+      // Ensure that user.role is an object with the 'name' property
+      const userObj = user.toObject();
+      if (
+        userObj.role &&
+        typeof userObj.role === 'object' &&
+        userObj.role.name
+      ) {
+        userObj.role = userObj.role.name; 
+      }
+      return userObj;
+    });
   }
 
   // Find one user by ID
@@ -148,14 +161,11 @@ export class UserService {
   }
 
   // Add a new shipping address
-  async addShippingAddress (
-    userId: string,
-    newAddress: ShippingAddress,
-  ) {
+  async addShippingAddress(userId: string, newAddress: ShippingAddress) {
     const user = await this.findOne(userId);
     user.shippingAddress.push(newAddress);
     const newUser = await user.save();
-    const res = await this.findOneByEmail(newUser.email)
+    const res = await this.findOneByEmail(newUser.email);
     return {
       email: res.email,
       role: res.role,
